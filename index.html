@@ -33,20 +33,24 @@
             fetch(`http://localhost:3000/download?url=${encodeURIComponent(url)}`)
                 .then(response => {
                     if (response.ok) {
-                        // Create a link to download the video
-                        const downloadLink = document.createElement('a');
-                        downloadLink.href = URL.createObjectURL(response.blob());
-                        downloadLink.download = 'video.mp4';
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        document.body.removeChild(downloadLink);
+                        return response.blob(); // Get the blob if the response is OK
                     } else {
-                        document.getElementById('result').innerText = 'Error downloading video.';
+                        return response.text().then(text => { // Get the error message
+                            throw new Error(text);
+                        });
                     }
                 })
+                .then(blob => {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.download = 'video.mp4';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                })
                 .catch(error => {
-                    console.error(error);
-                    document.getElementById('result').innerText = 'An error occurred.';
+                    console.error('Download error:', error);
+                    document.getElementById('result').innerText = `An error occurred: ${error.message}`;
                 });
         }
     </script>
