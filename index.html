@@ -27,21 +27,27 @@
     <div class="result" id="result"></div>
 
     <script>
-        async function downloadVideo() {
+        function downloadVideo() {
             const url = document.getElementById('videoUrl').value;
-            const videoId = url.split('v=')[1].split('&')[0]; // Extract video ID
 
-            const response = await fetch(`http://localhost:3000/download?id=${videoId}`);
-            const data = await response.json();
-
-            if (data.downloadLink) {
-                document.getElementById('result').innerHTML = `
-                    <h3>${data.title}</h3>
-                    <a href="${data.downloadLink}" target="_blank">Download Video</a>
-                `;
-            } else {
-                document.getElementById('result').innerText = 'Error fetching video data.';
-            }
+            fetch(`http://localhost:3000/download?url=${encodeURIComponent(url)}`)
+                .then(response => {
+                    if (response.ok) {
+                        // Create a link to download the video
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = URL.createObjectURL(response.blob());
+                        downloadLink.download = 'video.mp4';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                    } else {
+                        document.getElementById('result').innerText = 'Error downloading video.';
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    document.getElementById('result').innerText = 'An error occurred.';
+                });
         }
     </script>
 </body>
