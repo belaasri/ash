@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Video Downloader</h1>
+    <input type="text" id="videoUrl" placeholder="Enter YouTube Video URL" />
+    <button onclick="downloadVideo()">Download</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        async function downloadVideo() {
+            const url = document.getElementById('videoUrl').value;
+            const videoId = url.split('v=')[1].split('&')[0]; // Extract video ID
+
+            const response = await fetch(`http://localhost:3000/download?id=${videoId}`);
+            const data = await response.json();
+
+            if (data.downloadLink) {
+                document.getElementById('result').innerHTML = `
+                    <h3>${data.title}</h3>
+                    <a href="${data.downloadLink}" target="_blank">Download Video</a>
+                `;
+            } else {
+                document.getElementById('result').innerText = 'Error fetching video data.';
+            }
+        }
+    </script>
+</body>
+</html>
